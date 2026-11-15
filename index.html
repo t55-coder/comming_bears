@@ -1,0 +1,616 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>곰이 온다</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: one phone-sized column. Night forest field on top, answer buttons under it, cards on a separate screen. */
+:root{
+  --bg:#0e1815; --panel:#162622; --panel2:#1f352f; --line:#2f4a41;
+  --text:#ecf4ee; --muted:#9bb5a9; --honey:#ffc23d; --honey-ink:#2a1d00;
+  --bad:#ff6b5e; --good:#4fe08a; --blue:#5aa9ff; --violet:#b88bff;
+  --display:'Jua','Noto Sans KR',system-ui,sans-serif;
+  --body:'Noto Sans KR',system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 28px;min-height:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--honey);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-family:var(--display);font-size:26px;letter-spacing:.5px;color:var(--honey)}
+.right{display:flex;align-items:center;gap:8px}
+.wallet{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 14px 5px 8px;font-weight:700;font-variant-numeric:tabular-nums}
+.coin{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a3,var(--honey) 55%,#d99a10);box-shadow:inset 0 0 0 2px #b97f06}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:10px;padding:5px 10px;font-size:13px;color:var(--muted)}
+h1,h2{font-family:var(--display);font-weight:400;margin:0}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:700;font-size:17px;background:var(--panel2);border:1px solid var(--line);transition:transform .08s}
+.btn:active{transform:scale(.97)}
+.btn.main{background:var(--honey);color:var(--honey-ink);border-color:#e0a420;font-family:var(--display);font-size:24px;font-weight:400;padding:16px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+.muted{color:var(--muted);font-size:14px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 0;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--panel2);border-color:var(--honey);color:var(--text);font-weight:700}
+.lbl{font-size:13px;color:var(--muted);margin:0 0 6px}
+[hidden]{display:none!important}
+
+/* home */
+.hero{background:linear-gradient(#10203a,#16342f);border:1px solid var(--line);border-radius:18px;padding:22px 18px 18px;text-align:center;position:relative;overflow:hidden}
+.hero h1{font-size:44px;line-height:1.1;color:var(--text)}
+.hero p{margin:8px 0 0;color:var(--muted)}
+.hero .sprites{font-size:52px;letter-spacing:6px;margin-top:10px}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* game */
+.hud{display:flex;align-items:center;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.hearts{font-size:21px;letter-spacing:1px;color:var(--bad)}
+.hearts .lost{color:#3a4a45}
+.hud .stat{font-weight:700}
+.hud .combo{color:var(--honey)}
+.field{position:relative;height:clamp(250px,40vh,360px);border-radius:16px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(circle at 84% 14%,#fff7cf 0 14px,transparent 15px),linear-gradient(#0f1e38 0%,#15312f 70%,#1f4d38 100%)}
+.field::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;background:linear-gradient(#245a3f,#1a432f)}
+.lane{position:absolute;top:0;bottom:50px;width:0;border-left:2px dashed rgba(255,255,255,.08)}
+.home{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:54px;z-index:2;line-height:1}
+.girl{position:absolute;left:calc(50% + 40px);bottom:8px;font-size:30px;z-index:2;line-height:1}
+.bear{position:absolute;top:0;z-index:3;display:flex;flex-direction:column;align-items:center;will-change:transform;pointer-events:none}
+.bear .sprite{line-height:1;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.bear .tag{font-size:11px;font-weight:700;background:rgba(0,0,0,.55);border-radius:6px;padding:0 6px;margin-top:2px}
+.bear .pips{font-size:11px;color:var(--honey);letter-spacing:2px;height:13px}
+.bear.target .sprite{animation:bob .5s infinite alternate}
+.bear.target .tag{background:var(--honey);color:var(--honey-ink)}
+.bear.baby .sprite{font-size:40px}.bear.mama .sprite{font-size:48px}.bear.papa .sprite{font-size:68px;filter:hue-rotate(-25deg) saturate(1.4) drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.bear.fly{animation:fly .55s ease-in forwards}
+.float{position:absolute;z-index:6;font-weight:700;color:var(--honey);text-shadow:0 2px 0 #000;animation:rise .9s ease-out forwards;pointer-events:none;font-size:18px}
+.wave{position:absolute;inset:0;display:grid;place-items:center;z-index:7;font-family:var(--display);font-size:46px;color:#fff;text-shadow:0 3px 0 #000;animation:wave 1.4s ease-out forwards;pointer-events:none}
+.field.shake{animation:shake .35s}
+.qpanel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-height:108px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.qtype{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--honey)}
+.qtext{font-family:var(--display);font-size:clamp(22px,6vw,28px);line-height:1.35;text-wrap:balance}
+.blank{display:inline-block;min-width:3.2em;border-bottom:3px solid var(--honey);text-align:center;color:transparent;user-select:none}
+.qhint{font-size:14px;color:var(--muted)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 8px;font-size:18px;font-weight:700;min-height:62px;display:flex;align-items:center;justify-content:center;text-align:center;gap:8px;overflow-wrap:anywhere}
+.choice small{color:var(--muted);font-weight:400;font-size:12px}
+.choice:active{transform:scale(.97)}
+.choice.ok{background:#164d2f;border-color:var(--good)}
+.choice.no{background:#5a211c;border-color:var(--bad)}
+
+/* result */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 4px}
+.stats b{display:block;font-family:var(--display);font-size:28px;font-weight:400;color:var(--honey);font-variant-numeric:tabular-nums}
+.wrongs{display:flex;flex-direction:column;gap:6px;margin:8px 0 0;padding:0;list-style:none}
+.wrongs li{display:flex;justify-content:space-between;gap:10px;background:var(--bg);border-radius:10px;padding:8px 12px}
+.wrongs b{font-family:var(--display);font-weight:400;font-size:18px}
+
+/* cards */
+.card{--c:#9bb5a9;position:relative;background:linear-gradient(160deg,var(--panel2),var(--panel));border:2px solid var(--c);border-radius:14px;padding:8px 8px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.card.r-R{--c:var(--blue)}.card.r-SR{--c:var(--violet);box-shadow:0 0 16px rgba(184,139,255,.35)}.card.r-SSR{--c:var(--honey);box-shadow:0 0 22px rgba(255,194,61,.55);background:linear-gradient(160deg,#4a3a10,var(--panel))}
+.card.r-UR{--c:#ff7ad9;box-shadow:0 0 26px rgba(255,122,217,.65),0 0 60px rgba(90,169,255,.4);background:linear-gradient(160deg,#4a2160,#1a2b4d)}
+.card.r-UR .art{animation:hue 2.5s linear infinite}
+.card .rar{align-self:flex-start;font-size:11px;font-weight:700;color:var(--c);letter-spacing:1px}
+.card .art{font-size:44px;line-height:1.1;margin:2px 0}
+.card .nm{font-weight:700;font-size:14px;line-height:1.25}
+.card .pw{font-size:12px;color:var(--muted)}.card .pw b{font-family:var(--display);font-weight:400;font-size:20px;color:var(--text)}
+.card .ln{font-size:12px;color:var(--muted);font-style:italic;line-height:1.35;margin-top:4px}
+.card .cnt{position:absolute;top:6px;right:8px;font-size:12px;font-weight:700;color:var(--honey)}
+.card.big{padding:14px;max-width:260px;margin:0 auto}.card.big .art{font-size:92px}.card.big .nm{font-size:20px}.card.big .pw b{font-size:34px}.card.big .ln{font-size:14px}
+.card.locked{border-color:var(--line);background:var(--panel);box-shadow:none}.card.locked .art{filter:grayscale(1) brightness(.35)}
+.card .new{position:absolute;top:-8px;left:-6px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;transform:rotate(-8deg)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid.ten{grid-template-columns:repeat(5,1fr);gap:6px}
+.grid.ten .card{padding:4px 2px 6px}.grid.ten .art{font-size:28px}.grid.ten .nm{font-size:10px}.grid.ten .pw,.grid.ten .ln,.grid.ten .rar{display:none}
+button.cardbtn{background:none;border:0;padding:0;text-align:inherit;display:block;width:100%}
+.stage{min-height:260px;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#254437,var(--panel) 70%);border:1px solid var(--line);border-radius:16px;padding:16px;overflow:hidden;position:relative}
+.chest{font-size:84px;animation:shake .5s infinite}
+.reveal{animation:flip .6s ease-out both}
+.reveal:nth-child(2){animation-delay:.07s}.reveal:nth-child(3){animation-delay:.14s}.reveal:nth-child(4){animation-delay:.21s}.reveal:nth-child(5){animation-delay:.28s}.reveal:nth-child(6){animation-delay:.35s}.reveal:nth-child(7){animation-delay:.42s}.reveal:nth-child(8){animation-delay:.49s}.reveal:nth-child(9){animation-delay:.56s}.reveal:nth-child(10){animation-delay:.63s}
+.conf{position:absolute;top:-10px;width:8px;height:12px;border-radius:2px;animation:conf 1.6s ease-in forwards;pointer-events:none}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(5,10,8,.8);display:grid;place-items:center;padding:20px}
+.modal .box{width:min(320px,100%);display:flex;flex-direction:column;gap:12px}
+.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--honey);color:var(--honey-ink);font-weight:700;padding:10px 16px;border-radius:12px;z-index:60;animation:rise .2s ease-out}
+.back{align-self:flex-start}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
+@keyframes bob{to{transform:translateY(-5px)}}
+@keyframes fly{to{transform:translate(var(--fx,0),-170px) rotate(540deg) scale(.3);opacity:0}}
+@keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-46px)}}
+@keyframes wave{0%{opacity:0;transform:scale(.5)}20%{opacity:1;transform:scale(1.1)}80%{opacity:1}100%{opacity:0;transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px) rotate(-1deg)}75%{transform:translateX(7px) rotate(1deg)}}
+@keyframes flip{from{opacity:0;transform:rotateY(90deg) scale(.7)}to{opacity:1;transform:none}}
+@keyframes conf{to{transform:translate(var(--dx),330px) rotate(720deg);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.card.r-UR .art{animation:none}.bear.target .sprite,.chest{animation:none}.reveal,.field.shake{animation-duration:.01s}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="logo">곰이 온다!</div>
+    <div class="right">
+      <div class="wallet" title="코인"><span class="coin"></span><span id="coins">0</span></div>
+      <button class="ghost" id="mute" type="button">소리 켜짐</button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <section id="home" class="stack">
+    <div class="hero">
+      <h1>곰이 온다!</h1>
+      <p>곰이 오두막에 닿기 전에 영어로 쫓아내세요.<br>코인을 모아 곰 카드를 뽑아 보세요.</p>
+      <div class="sprites" aria-hidden="true">🧸🐻🏠</div>
+    </div>
+    <button class="btn main" id="start" type="button">게임 시작</button>
+    <div class="row">
+      <button class="btn" id="toGacha" type="button">카드 뽑기 · 50</button>
+      <button class="btn" id="toDex" type="button">내 도감 <span id="dexCount"></span></button>
+    </div>
+    <div class="panel stack">
+      <div><p class="lbl">단어 범위</p>
+        <div class="seg" id="segRange"><button type="button" data-v="cd">2차시 C·D 핵심</button><button type="button" data-v="all">A~E 전체</button></div></div>
+      <div><p class="lbl">난이도</p>
+        <div class="seg" id="segDiff"><button type="button" data-v="easy">쉬움 (느린 곰)</button><button type="button" data-v="normal">보통</button></div></div>
+      <p class="muted" id="bestLine"></p>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="stack" hidden>
+    <div class="hud">
+      <div class="hearts" id="hearts" aria-label="체력"></div>
+      <div class="stat" id="waveTxt">WAVE 1</div>
+      <div class="stat combo" id="comboTxt"></div>
+      <div class="stat" id="runCoins">+0</div>
+    </div>
+    <div class="field" id="field">
+      <div class="lane" style="left:18%"></div><div class="lane" style="left:50%"></div><div class="lane" style="left:82%"></div>
+      <div class="home" id="cottage" aria-hidden="true">🏠</div><div class="girl" aria-hidden="true">👧</div>
+    </div>
+    <div class="qpanel" aria-live="polite"><div class="qtype" id="qtype"></div><div class="qtext" id="qtext"></div><div class="qhint" id="qhint"></div></div>
+    <div class="choices" id="choices"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="stack" hidden>
+    <h2 id="resTitle">오두막이 뚫렸다!</h2>
+    <div class="stats"><div><b id="rWave">0</b>웨이브</div><div><b id="rKills">0</b>쫓아낸 곰</div><div><b id="rCoins">0</b>얻은 코인</div></div>
+    <div class="panel"><p class="lbl" style="margin:0">최고 콤보 <b id="rCombo" style="color:var(--honey)">0</b> · 보유 코인 <b id="rWallet" style="color:var(--honey)">0</b></p></div>
+    <div class="panel" id="wrongBox"><p class="lbl" style="margin:0">틀린 문제 (단어는 다음 판에 더 자주 나와요)</p><ul class="wrongs" id="wrongList"></ul></div>
+    <button class="btn main" id="again" type="button">한 판 더</button>
+    <div class="row"><button class="btn" id="resGacha" type="button">카드 뽑기</button><button class="btn" id="resHome" type="button">처음으로</button></div>
+  </section>
+
+  <!-- GACHA -->
+  <section id="gacha" class="stack" hidden>
+    <button class="ghost back" type="button" data-go="home">← 처음으로</button>
+    <h2>곰 카드 뽑기</h2>
+    <div class="stage" id="stage"><div class="muted" style="text-align:center">상자를 열어 카드를 뽑아 보세요.<br>UR 1% · SSR 2% · 10회 뽑기는 R 이상 1장 보장.</div></div>
+    <div class="row">
+      <button class="btn" id="pull1" type="button">1회 뽑기 · 50</button>
+      <button class="btn main" id="pull10" type="button" style="font-size:20px;padding:12px">10회 뽑기 · 450</button>
+    </div>
+    <p class="muted" id="gachaMsg"></p>
+  </section>
+
+  <!-- DEX -->
+  <section id="dex" class="stack" hidden>
+    <button class="ghost back" type="button" data-go="home">← 처음으로</button>
+    <h2>내 도감 <span class="muted" id="dexSub"></span></h2>
+    <div class="grid" id="dexGrid"></div>
+    <div class="panel muted">카드 대결: 짝과 동시에 카드를 내서 POWER가 높은 쪽이 이깁니다. 같은 카드를 또 뽑으면 ★이 올라 POWER +1. 비기면 가위바위보.</div>
+  </section>
+</div>
+<div class="modal" id="modal" hidden><div class="box" id="modalBox"></div></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- data ---------- */
+var WORDS=[
+ {en:"care",ko:"신경 쓰다",s:"It broke, but she didn't ___.",g:"cd"},
+ {en:"selfie",ko:"셀카",s:"He took a ___ with his phone.",g:"cd"},
+ {en:"upstairs",ko:"위층으로",s:"Then, she went ___ and found three beds.",g:"cd"},
+ {en:"post",ko:"게시물을 올리다",s:"I will ___ my photos on social media.",g:"cd"},
+ {en:"social media",ko:"소셜 미디어",s:"She posted all the selfies on ___.",g:"cd"},
+ {en:"then",ko:"그다음에",s:"She ate the soup, and ___ she took a nap.",g:"cd"},
+ {en:"next to",ko:"~옆에",s:"Mother Bear found a phone ___ Goldilocks.",g:"cd"},
+ {en:"break into",ko:"침입하다",s:"You ___ our house and posted these pictures.",a:"broke into",g:"cd"},
+ {en:"terrible",ko:"끔찍한",s:"This is ___! Look at all these posts of our home.",g:"cd"},
+ {en:"angrily",ko:"화가 나서",s:"\"Look at this!\" shouted Mother Bear ___.",g:"cd"},
+ {en:"without",ko:"~없이",s:"You posted these pictures ___ our permission.",g:"cd"},
+ {en:"until",ko:"~까지",s:"I'll clean your house every day ___ the end of the summer.",g:"cd"},
+ {en:"forgive",ko:"용서하다",s:"Please ___ me. I'm so sorry.",g:"cd"},
+ {en:"permission",ko:"허락",s:"You posted these pictures without our ___.",g:"cd"},
+ {en:"golden",ko:"금빛의",g:"x"},{en:"town",ko:"마을",g:"x"},{en:"soon",ko:"곧",g:"x"},{en:"however",ko:"하지만",g:"x"},
+ {en:"answer",ko:"대답",g:"x"},{en:"bowl",ko:"그릇",g:"x"},{en:"decide",ko:"결심하다",g:"x"},
+ {en:"share",ko:"공유하다",s:"She liked to ___ photos on social media.",g:"x"},
+ {en:"follower",ko:"팔로워",s:"The actor gained a lot of new ___ on his social media.",a:"followers",g:"x"},
+ {en:"cottage",ko:"오두막",s:"They spent the weekend in a ___ in the mountains.",g:"x"},
+ {en:"knock",ko:"노크하다",s:"Please ___ before you enter my room.",g:"x"},
+ {en:"shocking",ko:"충격적인",s:"The ending of the movie was ___.",g:"x"},
+ {en:"delete",ko:"삭제하다",s:"I'll ___ all my old posts.",g:"x"},
+ {en:"worry",ko:"걱정하다",s:"Please don't ___. Everything is fine.",g:"x"},
+ {en:"press",ko:"누르다",s:"___ the button to open the door.",a:"press",g:"x"},
+ {en:"forever",ko:"영원히",s:"They promised to be friends ___.",g:"x"},
+ {en:"twice",ko:"두 번",s:"I'll think ___ before I press POST.",g:"x"},
+ {en:"understand",ko:"이해하다",s:"You still don't ___.",g:"x"}
+];
+var CARDS=[
+ {id:1,n:"아기 곰",r:"N",e:"🧸",p:2,l:"Someone ate my soup and broke my chair!"},
+ {id:2,n:"엄마 곰",r:"N",e:"🐻",p:3,l:"Look at all these posts of our home!"},
+ {id:3,n:"수프 그릇",r:"N",e:"🍲",p:1,l:"There were three bowls of soup on a table."},
+ {id:4,n:"가장 작은 침대",r:"N",e:"🛏️",p:1,l:"She fell asleep in the smallest bed."},
+ {id:5,n:"부서진 의자",r:"N",e:"🪑",p:2,l:"It broke, but she didn't care."},
+ {id:6,n:"오두막 문",r:"N",e:"🚪",p:1,l:"She knocked on the door, but there was no answer."},
+ {id:7,n:"깊은 숲",r:"N",e:"🌲",p:1,l:"She was taking a walk in the forest."},
+ {id:8,n:"두고 간 휴대폰",r:"N",e:"📱",p:2,l:"Mother Bear found a phone next to Goldilocks."},
+ {id:9,n:"소나기",r:"N",e:"🌧️",p:1,l:"It was getting dark, and it started to rain."},
+ {id:10,n:"숲속 오두막",r:"N",e:"🏠",p:2,l:"She was walking in the forest and found a cottage."},
+ {id:11,n:"셀카 골디락스",r:"R",e:"🤳",p:4,l:"She took selfies with a smile."},
+ {id:12,n:"사과하는 골디락스",r:"R",e:"🙇",p:4,l:"Please forgive me. I'm so sorry."},
+ {id:13,n:"화난 엄마 곰",r:"R",e:"🐻",p:5,h:-30,l:"This is terrible! shouted Mother Bear angrily."},
+ {id:14,n:"좋아요 폭탄",r:"R",e:"👍",p:4,l:"Her posts were getting a lot of likes."},
+ {id:15,n:"청소하는 골디락스",r:"R",e:"🧹",p:4,l:"I'll clean your house every day."},
+ {id:16,n:"허락 카드",r:"R",e:"🪪",p:5,l:"You posted these pictures without our permission."},
+ {id:17,n:"눈물 바다 아기 곰",r:"SR",e:"😭",p:6,l:"Someone ate my soup! cried Baby Bear."},
+ {id:18,n:"침입자",r:"SR",e:"🕵️",p:6,l:"You broke into our house."},
+ {id:19,n:"삭제 버튼",r:"SR",e:"🗑️",p:7,l:"I deleted all my posts of your cottage."},
+ {id:20,n:"두 번 생각 타이머",r:"SR",e:"⏳",p:7,l:"I'll think twice before I press POST."},
+ {id:21,n:"아빠 곰",r:"SR",e:"🐻",p:6,h:-60,l:"Don't you know these things are wrong?"},
+ {id:22,n:"곰 가족 대장 아빠 곰",r:"SSR",e:"👑",p:10,l:"Your posts will live on forever."},
+ {id:23,n:"똑똑해진 골디락스",r:"SSR",e:"🌟",p:9,l:"From now on, I'll think before I press POST."},
+ {id:24,n:"허락의 황금 트로피",r:"SSR",e:"🏆",p:10,l:"You need permission to use this photo."},
+ {id:25,n:"무지개 곰 대왕",r:"UR",e:"🐻",p:15,l:"Think twice before you press POST."}
+];
+var QUIZ=[
+ {g:"cd",k:"아기 곰은 집에 와서 왜 울었나요?",q:"Why did Baby Bear cry when he came home?",a:"Someone ate his soup and broke his chair.",d:["He lost his phone.","He was angry at his mother.","It started to rain."]},
+ {g:"cd",k:"골디락스는 어디에서 잠이 들었나요?",q:"Where did Goldilocks fall asleep?",a:"In the smallest bed",d:["In the biggest bed","On a chair","In the kitchen"]},
+ {g:"cd",k:"엄마 곰은 골디락스 옆에서 무엇을 발견했나요?",q:"What did Mother Bear find next to Goldilocks?",a:"A phone",d:["A book","A bowl of soup","A key"]},
+ {g:"cd",k:"골디락스는 위층에서 무엇을 발견했나요?",q:"What did Goldilocks find upstairs?",a:"Three beds",d:["Three bowls","Three chairs","Three phones"]},
+ {g:"cd",k:"골디락스는 소셜 미디어에 무엇을 올렸나요?",q:"What did Goldilocks post on social media?",a:"Selfies",d:["Recipes","Homework","Maps"]},
+ {g:"cd",k:"집에 온 곰은 몇 마리였나요?",q:"How many bears came home?",a:"Three",d:["Two","Four","Five"]},
+ {g:"cd",k:"곰들은 언제 집에 돌아왔나요?",q:"When did the three bears come home?",a:"About an hour later",d:["The next day","Three hours later","Before she arrived"]},
+ {g:"cd",k:"아빠 곰은 왜 화가 났나요?",q:"Why was Father Bear upset?",a:"She broke into their house and posted pictures without permission.",d:["She ate all the soup.","She lost their phone.","She was too noisy."]},
+ {g:"cd",k:"골디락스는 무엇을 하겠다고 약속했나요?",q:"What did Goldilocks promise to do?",a:"Clean the house every day.",d:["Buy a new chair.","Make soup every day.","Move to another town."]},
+ {g:"cd",k:"골디락스는 언제까지 청소하겠다고 했나요?",q:"Until when would Goldilocks clean the house?",a:"Until the end of the summer",d:["For one hour","Until winter","For one day"]},
+ {g:"cd",k:"엄마 곰은 어떻게 소리쳤나요?",q:"How did Mother Bear shout?",a:"Angrily",d:["Happily","Quietly","Sleepily"]},
+ {g:"cd",k:"곰들이 자기를 발견했을 때 골디락스는 어떻게 했나요?",q:"What did Goldilocks do when the bears found her?",a:"She jumped up in surprise.",d:["She ran away laughing.","She kept sleeping.","She took a selfie."]},
+ {g:"cd",k:"누가 휴대폰을 발견했나요?",q:"Who found the phone?",a:"Mother Bear",d:["Baby Bear","Father Bear","Goldilocks"]},
+ {g:"cd",k:"의자가 부러진 뒤 골디락스는 뭐라고 외쳤나요?",q:"What did Goldilocks shout after the chair broke?",a:"It's so fun!",d:["I'm so sorry!","This is terrible!","Please forgive me."]},
+ {g:"x",k:"골디락스는 소셜 미디어에 무엇을 공유하는 것을 좋아했나요?",q:"What did Goldilocks like to share on social media?",a:"Photos",d:["Recipes","Music","Homework"]},
+ {g:"x",k:"처음에 사람들이 그녀에게 많이 주지 않은 것은?",q:"What didn't people give her at first?",a:"Many likes",d:["Many gifts","Any answers","Much money"]},
+ {g:"x",k:"그녀는 왜 더 충격적인 사진을 올리기로 했나요?",q:"Why did she decide to post more shocking pictures?",a:"Her followers got bored.",d:["She lost her phone.","She wanted new shoes.","It started to rain."]},
+ {g:"x",k:"골디락스는 숲에서 무엇을 발견했나요?",q:"What did Goldilocks find in the forest?",a:"A cottage",d:["A school","A hole","A boat"]},
+ {g:"x",k:"골디락스는 무엇을 먹었나요?",q:"What did Goldilocks eat?",a:"The smallest bowl of soup",d:["The biggest bowl of soup","A sandwich","A piece of cake"]},
+ {g:"x",k:"마지막 날 골디락스가 지운 것은?",q:"What did Goldilocks delete on the last day?",a:"All her posts of the cottage",d:["Her phone number","Her homework","The three beds"]},
+ {g:"x",k:"게시물을 지웠는데도 왜 소용이 없었나요?",q:"Why didn't deleting the posts help?",a:"Other people already shared them.",d:["The bears were angry.","Her phone was broken.","The posts were too old."]},
+ {g:"x",k:"골디락스는 앞으로 POST를 누르기 전에 무엇을 할까요?",q:"What will Goldilocks do before she presses POST?",a:"Think twice",d:["Take a selfie","Ask for likes","Run away"]},
+ {g:"x",k:"골디락스는 여름 내내 무엇을 했나요?",q:"What did Goldilocks do all summer long?",a:"She worked hard.",d:["She traveled.","She slept all day.","She went to school."]}
+];
+var RARCOL={N:"#9bb5a9",R:"#5aa9ff",SR:"#b88bff",SSR:"#ffc23d"};
+var KEY="bearComes_v1";
+/* ---------- helpers ---------- */
+function $(s){return document.querySelector(s)}
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+var S={coins:50,owned:{},best:{wave:0,kills:0},pity:0,mute:false,range:"cd",diff:"normal"};
+try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);for(var k in o)S[k]=o[k]}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+/* ---------- sound ---------- */
+var AC=null;
+function tone(f,d,type,vol,delay,slide){
+  if(S.mute)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    var t0=AC.currentTime+(delay||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||"sine";o.frequency.setValueAtTime(f,t0);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t0+d);
+    g.gain.setValueAtTime(vol||.08,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+d);
+    o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+d+.02);
+  }catch(e){}
+}
+var SFX={
+  ok:function(c){tone(520+Math.min(c,8)*60,.12,"triangle",.09);tone(780+Math.min(c,8)*60,.14,"triangle",.07,.07)},
+  no:function(){tone(180,.28,"sawtooth",.07,0,90)},
+  hit:function(){tone(120,.3,"square",.09,0,60)},
+  kill:function(){tone(300,.25,"square",.05,0,900)},
+  rare:function(r){var n={N:1,R:2,SR:3,SSR:5,UR:9}[r];for(var i=0;i<n;i++)tone(440*Math.pow(1.26,i),.18,"triangle",.09,i*.09)}
+};
+/* ---------- screens ---------- */
+var SCREENS=["home","game","result","gacha","dex"];
+function show(id){
+  SCREENS.forEach(function(s){$("#"+s).hidden=(s!==id)});
+  if(id!=="game"&&G){G.over=true}
+  if(id==="home")renderHome();
+  if(id==="gacha")renderGacha();
+  if(id==="dex")renderDex();
+  window.scrollTo(0,0);
+}
+function updWallet(){$("#coins").textContent=S.coins;$("#mute").textContent=S.mute?"소리 꺼짐":"소리 켜짐"}
+function toast(msg){var t=el("div","toast",msg);document.body.appendChild(t);setTimeout(function(){t.remove()},1700)}
+/* ---------- home ---------- */
+function seg(id,key){
+  var box=$(id);
+  [].forEach.call(box.children,function(b){
+    b.setAttribute("aria-pressed",String(S[key]===b.dataset.v));
+    b.onclick=function(){S[key]=b.dataset.v;save();[].forEach.call(box.children,function(x){x.setAttribute("aria-pressed",String(S[key]===x.dataset.v))});renderHome()};
+  });
+}
+function renderHome(){
+  updWallet();
+  var own=0;CARDS.forEach(function(c){if(S.owned[c.id])own++});
+  $("#dexCount").textContent=own+"/"+CARDS.length;
+  seg("#segRange","range");seg("#segDiff","diff");
+  var n=poolWords().length;
+  $("#bestLine").textContent="단어 "+n+"개 · 본문 퀴즈 "+QUIZ.filter(function(x){return S.range==="all"||x.g==="cd"}).length+"개 · 최고 기록 "+(S.best.wave?("웨이브 "+S.best.wave+", 곰 "+S.best.kills+"마리"):"아직 없음");
+}
+/* ---------- game ---------- */
+var G=null,LANES=[18,50,82];
+function poolWords(){return WORDS.filter(function(w){return S.range==="all"||w.g==="cd"})}
+function waveOf(){return 1+Math.floor(G.kills/5)}
+function baseTime(){var e=S.diff==="easy"?1.4:1;return Math.max(4.6,12.5-(waveOf()-1)*1.1)*e}
+function startGame(){
+  var f=$("#field");[].slice.call(f.querySelectorAll(".bear,.float,.wave")).forEach(function(n){n.remove()});
+  G={hp:5,coins:0,kills:0,combo:0,maxCombo:0,spawned:0,bears:[],q:null,qBear:null,locked:false,wrong:{},wrongWords:{},recent:[],recentQ:[],t:0,nextSpawn:.7,over:false,last:0,wave:1,id:0};
+  show("game");
+  $("#choices").innerHTML="";$("#qtext").textContent="";$("#qtype").textContent="";$("#qhint").textContent="";
+  hud();
+  tone(330,.1,"square",.05);
+  setTimeout(function(){if(G&&!G.over)toast("곰을 쫓아내세요!")},50);
+  requestAnimationFrame(function(ts){G.last=ts;loop(ts)});
+}
+function hud(){
+  var h="";for(var i=0;i<5;i++)h+='<span class="'+(i<G.hp?"":"lost")+'">♥</span>';
+  $("#hearts").innerHTML=h;
+  $("#waveTxt").textContent="WAVE "+waveOf();
+  $("#comboTxt").textContent=G.combo>=2?G.combo+" 콤보":"";
+  $("#runCoins").textContent="+"+G.coins;
+  updWallet();
+}
+function spawn(){
+  var wave=waveOf(),isBoss=(G.spawned%5===4);
+  var type=isBoss?"papa":(Math.random()<.45?"baby":"mama");
+  var used=G.bears.map(function(b){return b.lane});
+  var free=[0,1,2].filter(function(l){return used.indexOf(l)<0});
+  var lane=rand(free.length?free:[0,1,2]);
+  var mult=type==="baby"?.8:type==="papa"?1.35:1;
+  var b={id:++G.id,type:type,lane:lane,p:0,T:baseTime()*mult,hp:isBoss?2:1,dead:false,
+    node:el("div","bear "+type)};
+  b.node.style.left=LANES[lane]+"%";
+  b.node.innerHTML='<div class="pips"></div><div class="sprite">🐻</div><div class="tag">'+(type==="baby"?"Baby":type==="papa"?"PAPA BEAR":"Mama")+'</div>';
+  if(type==="baby")b.node.querySelector(".sprite").textContent="🧸";
+  $("#field").appendChild(b.node);
+  G.bears.push(b);G.spawned++;
+  pips(b);
+}
+function pips(b){b.node.querySelector(".pips").textContent=b.type==="papa"?new Array(b.hp+1).join("●"):""}
+function loop(ts){
+  if(!G||G.over)return;
+  var dt=Math.min(.05,(ts-G.last)/1000);G.last=ts;G.t+=dt;
+  var F=$("#field"),H=F.clientHeight,top0=-6,travel=H-54-(66);
+  var maxB=Math.min(3,1+Math.floor(waveOf()/2));
+  if(G.bears.length<maxB&&G.t>=G.nextSpawn){spawn();G.nextSpawn=G.t+1.6+Math.random()*1.2}
+  var target=null;
+  for(var i=G.bears.length-1;i>=0;i--){
+    var b=G.bears[i];
+    if(b.dead)continue;
+    b.p+=dt/b.T;
+    if(b.p>=1){reach(b,i);continue}
+    b.node.style.transform="translate(-50%,"+(top0+b.p*travel)+"px)";
+    if(!target||b.p>target.p)target=b;
+  }
+  if(G.over)return;
+  if(target&&(!G.qBear||G.qBear.id!==target.id||!G.q))focusBear(target);
+  else if(!target&&G.q){G.q=null;G.qBear=null}
+  requestAnimationFrame(loop);
+}
+function focusBear(b){
+  G.bears.forEach(function(x){x.node.classList.toggle("target",x===b)});
+  G.qBear=b;newQ();
+}
+function shakeField(){var F=$("#field");F.classList.remove("shake");void F.offsetWidth;F.classList.add("shake")}
+function reach(b,i){
+  G.bears.splice(i,1);b.node.remove();
+  G.hp--;G.combo=0;SFX.hit();
+  var F=$("#field");F.classList.remove("shake");void F.offsetWidth;F.classList.add("shake");
+  hud();
+  if(G.qBear&&G.qBear.id===b.id){G.qBear=null;G.q=null}
+  G.nextSpawn=Math.max(G.nextSpawn,G.t+1);
+  if(G.hp<=0)endGame();
+}
+/* questions */
+function pickWord(){
+  var p=poolWords().filter(function(w){return G.recent.indexOf(w.en)<0});
+  var bag=[];p.forEach(function(w){var n=G.wrong[w.en]?4:1;for(var i=0;i<n;i++)bag.push(w)});
+  var w=rand(bag);G.recent.push(w.en);if(G.recent.length>6)G.recent.shift();return w;
+}
+function newQ(){
+  if(Math.random()<.3){newQuiz();return}
+  var w=pickWord(),types=["ko","en"];if(w.s){types.push("cloze","cloze")}
+  var type=rand(types),others=shuffle(poolWords().filter(function(x){return x.en!==w.en})).slice(0,3),correct,opts,label,prompt,hint="";
+  if(type==="ko"){correct=w.en;opts=[w.en].concat(others.map(function(x){return x.en}));label="뜻 → 영어";prompt=w.ko}
+  else if(type==="en"){correct=w.ko;opts=[w.ko].concat(others.map(function(x){return x.ko}));label="영어 → 뜻";prompt=w.en}
+  else{correct=w.a||w.en;opts=[correct].concat(others.map(function(x){return x.a||x.en}));label="빈칸 채우기";prompt=w.s;
+    if(S.diff==="easy"||waveOf()<=2)hint="힌트: "+w.ko}
+  G.q={w:w,type:type,correct:correct,opts:shuffle(opts)};
+  $("#qtype").textContent=label+(G.qBear&&G.qBear.hp>1?"  ·  보스는 2번 맞혀야 해요":"");
+  var qt=$("#qtext");qt.style.fontSize="";qt.innerHTML="";
+  if(type==="cloze"){var parts=prompt.split("___");qt.appendChild(document.createTextNode(parts[0]));qt.appendChild(el("span","blank","_____"));qt.appendChild(document.createTextNode(parts[1]||""))}
+  else qt.textContent=prompt;
+  $("#qhint").textContent=hint;
+  var box=$("#choices");box.innerHTML="";
+  G.q.opts.forEach(function(o,i){
+    var b=el("button","choice");b.type="button";b.appendChild(document.createTextNode(o));
+    var sm=el("small","",String(i+1));b.appendChild(sm);
+    b.onclick=function(){choose(i)};box.appendChild(b);
+  });
+  G.locked=false;
+}
+function newQuiz(){
+  var ok=function(x){return S.range==="all"||x.g==="cd"};
+  var pool=QUIZ.filter(function(x){return ok(x)&&G.recentQ.indexOf(x.q)<0});
+  if(!pool.length){G.recentQ=[];pool=QUIZ.filter(ok)}
+  var x=rand(pool);G.recentQ.push(x.q);if(G.recentQ.length>8)G.recentQ.shift();
+  G.q={w:{en:x.q,ko:x.a},type:"quiz",correct:x.a,opts:shuffle([x.a].concat(x.d))};
+  $("#qtype").textContent="본문 퀴즈"+(G.qBear&&G.qBear.hp>1?"  ·  보스는 2번 맞혀야 해요":"");
+  var qt=$("#qtext");qt.innerHTML="";qt.style.fontSize="clamp(18px,5vw,22px)";qt.textContent=x.q;
+  $("#qhint").textContent=(S.diff==="easy"||waveOf()<=2)?"힌트: "+x.k:"";
+  var box=$("#choices");box.innerHTML="";
+  G.q.opts.forEach(function(o,i){
+    var b=el("button","choice");b.type="button";b.appendChild(document.createTextNode(o));
+    if(o.length>24)b.style.fontSize="14px";else if(o.length>14)b.style.fontSize="16px";
+    b.appendChild(el("small","",String(i+1)));
+    b.onclick=function(){choose(i)};box.appendChild(b);
+  });
+  G.locked=false;
+}
+function choose(i){
+  if(!G||G.over||G.locked||!G.q)return;
+  var q=G.q,b=G.qBear,btns=$("#choices").children,ok=(q.opts[i]===q.correct);
+  if(ok){
+    G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);
+    var gain=10+Math.min(G.combo,5)*2;G.coins+=gain;S.coins+=gain;save();
+    SFX.ok(G.combo);
+    if(b){
+      floatAt(b,"+"+gain);
+      b.hp--;
+      if(b.hp>0){b.p=Math.max(0,b.p-.15);pips(b);G.q=null;G.qBear=null;newQ2(b)}
+      else{
+        b.dead=true;b.node.style.setProperty("--fx",(Math.random()*160-80)+"px");
+        var tr=b.node.style.transform;b.node.classList.add("fly");
+        b.node.style.transform="translate(-50%,"+tr.replace(/.*,\s*/,"").replace(")","")+")";
+        (function(n){setTimeout(function(){n.remove()},600)})(b.node);
+        G.bears.splice(G.bears.indexOf(b),1);G.kills++;SFX.kill();
+        G.q=null;G.qBear=null;
+        G.nextSpawn=Math.max(G.nextSpawn,G.t+.5);
+        if(G.kills%5===0){var wv=el("div","wave","WAVE "+waveOf());$("#field").appendChild(wv);setTimeout(function(){wv.remove()},1500)}
+        $("#choices").innerHTML="";
+        $("#qtext").textContent="다음 곰이 온다…";$("#qtype").textContent="";$("#qhint").textContent="";
+      }
+    }
+    hud();
+  }else{
+    G.combo=0;SFX.no();G.locked=true;
+    G.wrong[q.w.en]=(G.wrong[q.w.en]||0)+1;G.wrongWords[q.w.en]=q.w;
+    if(b)b.p=Math.min(.94,b.p+.1);
+    btns[i].classList.add("no");
+    for(var k=0;k<btns.length;k++)if(q.opts[k]===q.correct)btns[k].classList.add("ok");
+    G.hp--;shakeField();hud();
+    if(G.hp<=0){G.locked=true;setTimeout(function(){if(G&&!G.over)endGame()},800);return}
+    var cur=q;
+    setTimeout(function(){if(G&&!G.over&&G.q===cur){if(G.qBear&&!G.qBear.dead)newQ();else{G.q=null}}},950);
+  }
+}
+function newQ2(b){G.qBear=b;newQ()}
+function floatAt(b,txt){
+  var f=el("div","float",txt),F=$("#field");
+  f.style.left="calc("+LANES[b.lane]+"% - 14px)";
+  var y=parseFloat((b.node.style.transform.match(/,\s*([-\d.]+)px/)||[0,40])[1]);
+  f.style.top=Math.max(10,y)+"px";F.appendChild(f);setTimeout(function(){f.remove()},950);
+}
+function endGame(){
+  G.over=true;
+  var wave=waveOf();
+  if(wave>S.best.wave||(wave===S.best.wave&&G.kills>S.best.kills))S.best={wave:wave,kills:G.kills};
+  save();
+  $("#resTitle").textContent=G.kills>=10?"오두막을 잘 지켰어요!":"오두막이 뚫렸다!";
+  $("#rWave").textContent=wave;$("#rKills").textContent=G.kills;$("#rCoins").textContent=G.coins;
+  $("#rCombo").textContent=G.maxCombo;$("#rWallet").textContent=S.coins;
+  var ul=$("#wrongList");ul.innerHTML="";
+  var ws=Object.keys(G.wrongWords);
+  $("#wrongBox").hidden=!ws.length;
+  ws.forEach(function(k){var w=G.wrongWords[k];ul.appendChild(el("li","","<b>"+w.en+"</b><span>"+w.ko+"</span>"))});
+  var s=G;show("result");G=s;G.over=true;updWallet();
+}
+document.addEventListener("keydown",function(e){
+  if(!G||G.over||$("#game").hidden)return;
+  var n=parseInt(e.key,10);if(n>=1&&n<=4)choose(n-1);
+});
+/* ---------- cards ---------- */
+function cardHTML(c,count,opt){
+  opt=opt||{};var star=count>1?"★"+(count-1):"";
+  var art='<div class="art"'+(c.h?' style="filter:hue-rotate('+c.h+'deg) saturate(1.3)"':"")+'>'+c.e+"</div>";
+  return '<div class="card r-'+c.r+(opt.big?" big":"")+(opt.cls?" "+opt.cls:"")+'">'+(opt.isNew?'<span class="new">NEW</span>':"")+
+    '<div class="rar">'+c.r+"</div>"+(count>1&&!opt.noCount?'<div class="cnt">'+star+"</div>":"")+art+
+    '<div class="nm">'+c.n+'</div><div class="pw">POWER <b>'+(c.p+Math.max(0,count-1))+'</b></div><div class="ln">“'+c.l+"”</div></div>";
+}
+function renderDex(){
+  updWallet();
+  var own=0,g=$("#dexGrid");g.innerHTML="";
+  var order={UR:-1,SSR:0,SR:1,R:2,N:3};
+  CARDS.slice().sort(function(a,b){return order[a.r]-order[b.r]||a.id-b.id}).forEach(function(c){
+    var n=S.owned[c.id]||0;
+    if(n){own++;var b=el("button","cardbtn");b.type="button";b.innerHTML=cardHTML(c,n);b.onclick=function(){openCard(c,n)};g.appendChild(b)}
+    else g.appendChild(el("div","card locked r-"+c.r,'<div class="rar">'+c.r+'</div><div class="art">❔</div><div class="nm">???</div><div class="pw">&nbsp;</div>'));
+  });
+  $("#dexSub").textContent=own+" / "+CARDS.length;
+}
+function openCard(c,n){
+  var m=$("#modal"),bx=$("#modalBox");
+  bx.innerHTML=cardHTML(c,n,{big:true});
+  var cl=el("button","btn","닫기");cl.type="button";cl.onclick=function(){m.hidden=true};bx.appendChild(cl);
+  m.hidden=false;cl.focus();
+}
+$("#modal").addEventListener("click",function(e){if(e.target===this)this.hidden=true});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")$("#modal").hidden=true});
+function roll(forceRare){
+  var r=Math.random(),rar=r<.01?"UR":r<.03?"SSR":r<.13?"SR":r<.39?"R":"N";
+  if(forceRare&&(rar==="N"))rar=Math.random()<.8?"R":"SR";
+  return rar;
+}
+function renderGacha(){
+  updWallet();
+  $("#pull1").disabled=S.coins<50;$("#pull10").disabled=S.coins<450;
+  var own=0;CARDS.forEach(function(c){if(S.owned[c.id])own++});
+  $("#gachaMsg").textContent="보유 코인 "+S.coins+" · 수집 "+own+"/"+CARDS.length+(S.coins<50?" · 코인이 모자라요. 게임에서 곰을 쫓아내 모아 보세요.":"");
+}
+var pulling=false;
+function pull(n){
+  var cost=n===1?50:450;
+  if(pulling||S.coins<cost)return;
+  pulling=true;S.coins-=cost;
+  var res=[],gotRare=false;
+  for(var i=0;i<n;i++){
+    var force=(S.pity>=9)||(n===10&&i===9&&!gotRare);
+    var rar=roll(force);
+    if(rar!=="N"){gotRare=true;S.pity=0}else S.pity++;
+    var c=rand(CARDS.filter(function(x){return x.r===rar}));
+    var isNew=!S.owned[c.id];S.owned[c.id]=(S.owned[c.id]||0)+1;
+    res.push({c:c,isNew:isNew,count:S.owned[c.id]});
+  }
+  save();updWallet();$("#pull1").disabled=true;$("#pull10").disabled=true;
+  var st=$("#stage");st.innerHTML='<div class="chest">🎁</div>';
+  tone(200,.5,"sawtooth",.05,0,500);
+  setTimeout(function(){
+    st.innerHTML="";
+    var best=res.reduce(function(a,r){var o={N:0,R:1,SR:2,SSR:3,UR:4};return o[r.c.r]>o[a]?r.c.r:a},"N");
+    if(n===1){var r=res[0];st.innerHTML='<div class="reveal" style="width:min(240px,100%)">'+cardHTML(r.c,r.count,{big:true,isNew:r.isNew})+"</div>"}
+    else{
+      var gr=el("div","grid ten");gr.style.width="100%";
+      res.forEach(function(r){var d=el("div","reveal",cardHTML(r.c,r.count,{isNew:r.isNew,noCount:true}));gr.appendChild(d)});
+      st.appendChild(gr);
+    }
+    SFX.rare(best);
+    if(best!=="N"&&best!=="R")confetti(st,best==="UR"?90:best==="SSR"?40:20);
+    pulling=false;renderGacha();
+  },900);
+}
+function confetti(box,n){
+  var cols=["#ffc23d","#ff6b5e","#5aa9ff","#b88bff","#4fe08a"];
+  for(var i=0;i<n;i++){var c=el("span","conf");c.style.left=Math.random()*100+"%";c.style.background=cols[i%5];c.style.setProperty("--dx",(Math.random()*120-60)+"px");c.style.animationDelay=Math.random()*.4+"s";box.appendChild(c);(function(x){setTimeout(function(){x.remove()},2400)})(c)}
+}
+/* ---------- wiring ---------- */
+$("#start").onclick=startGame;$("#again").onclick=startGame;
+$("#toGacha").onclick=function(){show("gacha")};$("#toDex").onclick=function(){show("dex")};
+$("#resGacha").onclick=function(){show("gacha")};$("#resHome").onclick=function(){show("home")};
+$("#pull1").onclick=function(){pull(1)};$("#pull10").onclick=function(){pull(10)};
+$("#mute").onclick=function(){S.mute=!S.mute;save();updWallet()};
+[].forEach.call(document.querySelectorAll("[data-go]"),function(b){b.onclick=function(){show(b.dataset.go)}});
+show("home");
+})();
+</script>
+
+</body></html>
